@@ -15,13 +15,17 @@ A free, browser-based label designer for Phomemo thermal printers. No drivers ne
 2. Click **Connect** to pair with your printer via Bluetooth (or **USB** for PM-241)
 3. Design your label and click **Print**
 
-To run locally (Web Bluetooth requires HTTPS or localhost):
+To run locally with Vite (Web Bluetooth requires HTTPS or localhost):
 
 ```bash
-cd src/web
-python3 -m http.server 8080
-# Open http://localhost:8080 in Chrome
+npm install
+npm run dev
+# Open the URL shown by Vite in Chrome
 ```
+
+GitHub Pages is configured as **Deploy from a branch -> master -> /(root)**. The
+root `index.html` is the Pages entrypoint; no `gh-pages` branch or Actions
+workflow is required.
 
 **Requires:** Chrome, Edge, or another Chromium-based browser. Web Bluetooth is not available in Firefox or Safari. Android Chrome is supported with full touch UI; iOS is not supported. PM-241 printers require USB (WebUSB).
 
@@ -103,25 +107,21 @@ When the Bluetooth device picker appears, select the device showing a **signal s
 
 ```
 phomymo/
-├── src/
-│   └── web/
-│       ├── index.html     # Main UI
-│       ├── app.js         # Application logic
-│       ├── canvas.js      # Canvas rendering & dithering
-│       ├── elements.js    # Element management
-│       ├── handles.js     # Selection handles
-│       ├── storage.js     # localStorage persistence
-│       ├── templates.js   # Variable substitution & CSV
-│       ├── ble.js         # Web Bluetooth transport
-│       ├── usb.js         # WebUSB transport
-│       ├── printer.js     # Print protocols
-│       ├── printers.json  # Built-in printer definitions
-│       ├── constants.js   # Shared constants
-│       └── utils/
-│           ├── bindings.js   # Event binding helpers
-│           ├── errors.js     # Error handling
-│           └── validation.js # Input validation
-└── README.md
+├── index.html             # GitHub Pages entrypoint
+├── app.js                 # Application logic
+├── canvas.js              # Canvas rendering & dithering
+├── elements.js            # Element management
+├── handles.js             # Selection handles
+├── storage.js             # localStorage persistence
+├── templates.js           # Variable substitution & CSV
+├── ble.js                 # Web Bluetooth transport
+├── usb.js                 # WebUSB transport
+├── printer.js             # Print protocols and device detection
+├── printers.json          # Built-in printer definitions (same level as index.html)
+├── constants.js           # Shared constants
+├── utils/                 # Binding, error, and validation helpers
+├── docs/                  # User manual and screenshots
+└── vite.config.js         # Root-based development/build configuration
 ```
 
 ## Acknowledgments

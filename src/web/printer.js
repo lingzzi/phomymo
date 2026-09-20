@@ -7,6 +7,7 @@
  */
 
 import { STORAGE_KEYS } from './constants.js';
+import bundledPrinterData from './printers.json';
 
 // =============================================================================
 // PRINTER DEFINITIONS MANAGER
@@ -25,12 +26,21 @@ let _loaded = false;
  */
 export async function loadPrinterDefinitions() {
   try {
-    const resp = await fetch('./printers.json');
+    const configUrl = new URL('./printers.json', document.baseURI);
+    const resp = await fetch(configUrl, { cache: 'no-cache' });
+    if (!resp.ok) {
+      throw new Error(`HTTP ${resp.status} while loading ${configUrl}`);
+    }
     const json = await resp.json();
-    _builtinDefinitions = json.printers || [];
+    if (!Array.isArray(json.printers)) {
+      throw new Error('printers.json does not contain a printers array');
+    }
+    _builtinDefinitions = json.printers;
   } catch (e) {
-    console.error('Failed to load printers.json:', e);
-    _builtinDefinitions = [];
+    console.warn('Failed to load printers.json; using bundled definitions:', e);
+    _builtinDefinitions = Array.isArray(bundledPrinterData.printers)
+      ? bundledPrinterData.printers
+      : [];
   }
   _loaded = true;
   _rebuildDefinitions();

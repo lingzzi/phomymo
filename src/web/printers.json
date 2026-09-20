@@ -184,7 +184,7 @@
       "tape": false,
       "tapeWidths": null,
       "defaultTapeWidth": null,
-      "namePatterns": [],
+      "namePatterns": ["Q"],
       "labelPresets": "m-series",
       "builtin": true
     },

@@ -6163,6 +6163,10 @@ function populateMobileProps() {
                 <option value="Roboto Mono, monospace" ${fontFamily === 'Roboto Mono, monospace' ? 'selected' : ''}>Roboto Mono</option>
                 <option value="Courier New, monospace" ${fontFamily === 'Courier New, monospace' ? 'selected' : ''}>Courier New</option>
               </optgroup>
+              <optgroup label="Chinese">
+                <option value="Noto Sans SC, sans-serif" ${fontFamily === 'Noto Sans SC, sans-serif' ? 'selected' : ''}>思源黑体</option>
+                <option value="Noto Serif SC, serif" ${fontFamily === 'Noto Serif SC, serif' ? 'selected' : ''}>思源宋体</option>
+              </optgroup>
               ${state.localFonts.length > 0 ? `
               <optgroup label="System Fonts">
                 ${state.localFonts.map(f => `<option value="${f.family}" ${fontFamily === f.family ? 'selected' : ''}>${f.family}</option>`).join('')}

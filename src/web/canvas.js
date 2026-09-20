@@ -22,6 +22,36 @@ const OVERFLOW_PADDING = 120;
 const MAX_RENDER_CACHE_SIZE = 100;
 const MAX_IMAGE_CACHE_SIZE = 50;
 
+const DEFAULT_FONT_FAMILY = 'Noto Sans SC, sans-serif';
+
+/**
+ * Format a CSS font-family list for Canvas, quoting multi-word family names.
+ */
+function formatCanvasFontFamily(fontFamily) {
+  const families = (fontFamily || DEFAULT_FONT_FAMILY).split(',').map(family => family.trim());
+  const primary = families.shift();
+  const quotedPrimary = primary && !/^(['"]).*\1$/.test(primary) && /\s/.test(primary)
+    ? `"${primary}"`
+    : primary;
+  return [quotedPrimary, ...families].join(', ');
+}
+
+function formatCanvasFont(fontSize, fontFamily, fontWeight = 'normal', fontStyle = 'normal') {
+  const style = fontStyle === 'italic' ? 'italic ' : '';
+  const weight = fontWeight === 'bold' ? 'bold ' : '';
+  return `${style}${weight}${fontSize}px ${formatCanvasFontFamily(fontFamily)}`;
+}
+
+/**
+ * Wait for a selected web font before drawing text with Canvas.
+ */
+export async function waitForCanvasFont(fontFamily, fontSize = 24, fontWeight = 'normal', fontStyle = 'normal') {
+  if (!document.fonts) return;
+
+  const font = formatCanvasFont(fontSize, fontFamily, fontWeight, fontStyle);
+  await Promise.all([document.fonts.ready, document.fonts.load(font)]);
+}
+
 /**
  * Canvas renderer class
  */
@@ -499,7 +529,7 @@ export class CanvasRenderer {
 
         // Draw zone number label
         ctx.fillStyle = isActive ? '#3b82f6' : '#9ca3af';
-        ctx.font = `${10 * zoom}px Inter, sans-serif`;
+        ctx.font = formatCanvasFont(10 * zoom, 'Inter, sans-serif');
         ctx.textAlign = 'center';
         ctx.fillText(
           `${i + 1}`,
@@ -923,10 +953,7 @@ export class CanvasRenderer {
     }
 
     // Build font string with weight and style
-    const weight = fontWeight === 'bold' ? 'bold' : '';
-    const style = fontStyle === 'italic' ? 'italic' : '';
-    const fontStr = `${style} ${weight} ${effectiveFontSize}px ${fontFamily || 'Inter, sans-serif'}`.trim();
-    this.ctx.font = fontStr;
+    this.ctx.font = formatCanvasFont(effectiveFontSize, fontFamily, fontWeight, fontStyle);
     this.ctx.textBaseline = 'middle';
 
     // Set text alignment
@@ -1045,8 +1072,7 @@ export class CanvasRenderer {
 
     while (minSize <= maxSize) {
       const testSize = Math.floor((minSize + maxSize) / 2);
-      const fontStr = `${style} ${weight} ${testSize}px ${fontFamily || 'Inter, sans-serif'}`.trim();
-      this.ctx.font = fontStr;
+      this.ctx.font = formatCanvasFont(testSize, fontFamily, fontWeight, fontStyle);
 
       let fits = false;
 
@@ -1605,7 +1631,7 @@ export class CanvasRenderer {
   /**
    * Word wrap text to fit width
    */
-  wrapText(text, maxWidth, fontSize, fontFamily = 'Inter, sans-serif', fontWeight = 'normal', fontStyle = 'normal') {
+  wrapText(text, maxWidth, fontSize, fontFamily = DEFAULT_FONT_FAMILY, fontWeight = 'normal', fontStyle = 'normal') {
     const weight = fontWeight === 'bold' ? 'bold' : '';
     const style = fontStyle === 'italic' ? 'italic' : '';
     this.ctx.font = `${style} ${weight} ${fontSize}px ${fontFamily}`.trim();

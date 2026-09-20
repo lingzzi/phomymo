@@ -29,7 +29,7 @@ export function createTextElement(text = 'Text', options = {}) {
     color: options.color ?? 'black',              // 'black' or 'white'
     align: options.align ?? 'left',                 // horizontal: 'left', 'center', 'right'
     verticalAlign: options.verticalAlign ?? 'middle', // vertical: 'top', 'middle', 'bottom'
-    fontFamily: options.fontFamily ?? 'Inter, sans-serif',
+    fontFamily: options.fontFamily ?? 'Noto Sans SC, sans-serif',
     fontWeight: options.fontWeight ?? 'normal',    // 'normal' or 'bold'
     fontStyle: options.fontStyle ?? 'normal',      // 'normal' or 'italic'
     textDecoration: options.textDecoration ?? 'none', // 'none' or 'underline'

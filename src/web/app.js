@@ -4,7 +4,7 @@
  * v116
  */
 
-import { CanvasRenderer } from './canvas.js?v=115';
+import { CanvasRenderer, waitForCanvasFont } from './canvas.js?v=115';
 import { BLETransport } from './ble.js?v=103';
 import { USBTransport } from './usb.js?v=101';
 import { print, printDensityTest, isDSeriesPrinter, isP12Printer, isA30Printer, isTapePrinter, isPM241Printer, isTSPLPrinter, isRotatedPrinter, getPrinterWidthBytes, getPrinterDpi, getPrinterAlignment, getPrinterDescription, isDeviceRecognized, getMatchedPattern, loadPrinterDefinitions, getAllPrinterDefinitions, getPrinterDefinition, getCustomPrinterDefinitions, saveCustomPrinterDefinition, deleteCustomPrinterDefinition, isBuiltinPrinter, resetBuiltinPrinter, getAvailableProtocols, getAvailableLabelPresets, getDetectedDefinition } from './printer.js?v=128';
@@ -2210,7 +2210,7 @@ function startInlineEdit(elementId) {
     height: `${height}px`,
     transform: `rotate(${element.rotation || 0}deg)`,
     transformOrigin: 'top left',
-    fontFamily: element.fontFamily || 'Inter, sans-serif',
+    fontFamily: element.fontFamily || 'Noto Sans SC, sans-serif',
     fontSize: `${(element.fontSize || 24) * zoom}px`,
     fontWeight: element.fontWeight || 'normal',
     fontStyle: element.fontStyle || 'normal',
@@ -2327,7 +2327,7 @@ function updatePropertiesPanel() {
     case 'text':
       $('#props-text').classList.remove('hidden');
       $('#prop-text-content').value = element.text || '';
-      $('#prop-font-family').value = element.fontFamily || 'Inter, sans-serif';
+      $('#prop-font-family').value = element.fontFamily || 'Noto Sans SC, sans-serif';
       $('#prop-font-size').value = element.fontSize || 24;
       $('#prop-no-wrap').checked = element.noWrap || false;
       $('#prop-clip-overflow').checked = element.clipOverflow || false;
@@ -6126,7 +6126,7 @@ function populateMobileProps() {
 
   // Type-specific properties FIRST (content is most important on mobile)
   if (selected.type === 'text') {
-    const fontFamily = selected.fontFamily || 'Inter, sans-serif';
+    const fontFamily = selected.fontFamily || 'Noto Sans SC, sans-serif';
     const vAlign = selected.verticalAlign || 'middle';
     const textColor = selected.color || 'black';
     const bgColor = selected.background || 'transparent';
@@ -6150,6 +6150,7 @@ function populateMobileProps() {
             <div class="prop-label">Font</div>
             <select id="mobile-prop-fontFamily" class="prop-input">
               <optgroup label="Sans-Serif">
+                <option value="Noto Sans SC, sans-serif" ${fontFamily === 'Noto Sans SC, sans-serif' ? 'selected' : ''}>思源黑体</option>
                 <option value="Inter, sans-serif" ${fontFamily === 'Inter, sans-serif' ? 'selected' : ''}>Inter</option>
                 <option value="Roboto, sans-serif" ${fontFamily === 'Roboto, sans-serif' ? 'selected' : ''}>Roboto</option>
                 <option value="Open Sans, sans-serif" ${fontFamily === 'Open Sans, sans-serif' ? 'selected' : ''}>Open Sans</option>
@@ -6164,7 +6165,6 @@ function populateMobileProps() {
                 <option value="Courier New, monospace" ${fontFamily === 'Courier New, monospace' ? 'selected' : ''}>Courier New</option>
               </optgroup>
               <optgroup label="Chinese">
-                <option value="Noto Sans SC, sans-serif" ${fontFamily === 'Noto Sans SC, sans-serif' ? 'selected' : ''}>思源黑体</option>
                 <option value="Noto Serif SC, serif" ${fontFamily === 'Noto Serif SC, serif' ? 'selected' : ''}>思源宋体</option>
               </optgroup>
               ${state.localFonts.length > 0 ? `
@@ -6487,7 +6487,10 @@ function wireUpMobilePropHandlers(element) {
     textInput.addEventListener('blur', saveOnBlur('text'));
   }
   $('#mobile-prop-fontSize')?.addEventListener('change', (e) => updateProp('fontSize', parseInt(e.target.value)));
-  $('#mobile-prop-fontFamily')?.addEventListener('change', (e) => updateProp('fontFamily', e.target.value));
+  $('#mobile-prop-fontFamily')?.addEventListener('change', async (e) => {
+    await waitForCanvasFont(e.target.value, element.fontSize || 24, element.fontWeight, element.fontStyle);
+    updateProp('fontFamily', e.target.value);
+  });
 
   // Mobile add system fonts button
   $('#mobile-add-system-fonts-btn')?.addEventListener('click', async () => {
@@ -7588,9 +7591,13 @@ function init() {
     if (id) modifyElement(id, { text: e.target.value });
   });
   trackInputForHistory('#prop-font-family');
-  $('#prop-font-family').addEventListener('change', (e) => {
+  $('#prop-font-family').addEventListener('change', async (e) => {
     const id = state.selectedIds[0];
-    if (id) modifyElement(id, { fontFamily: e.target.value });
+    if (!id) return;
+
+    const element = state.elements.find(item => item.id === id);
+    await waitForCanvasFont(e.target.value, element?.fontSize || 24, element?.fontWeight, element?.fontStyle);
+    modifyElement(id, { fontFamily: e.target.value });
   });
 
   // Local fonts button
@@ -8152,6 +8159,7 @@ function init() {
 
   // Initial render
   render();
+  document.fonts?.ready.then(() => render());
 
   // Detect template fields on load
   detectTemplateFields();

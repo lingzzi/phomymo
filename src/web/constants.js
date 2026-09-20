@@ -230,7 +230,7 @@ export const PM241_LABEL_SIZES = {
 // =============================================================================
 export const DEFAULTS = {
   text: {
-    fontFamily: 'Inter, sans-serif',
+    fontFamily: 'Noto Sans SC, sans-serif',
     fontSize: 24,
     fontWeight: 'normal',
     fontStyle: 'normal',

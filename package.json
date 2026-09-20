@@ -8,7 +8,7 @@
     "test:headed": "npx playwright test --headed",
     "manual:screenshots": "npx playwright test",
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build src/web --outDir ../../dist",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
